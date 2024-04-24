@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import OdooConnector from './odoo-connector';
 import { CreateJobVacanyDto } from 'src/job-vacany/dto/create-job-vacany.dto';
 import { CreateTechSkillDto } from 'src/settings/dto/create-tech-skill.dto';
-import { CreateApplicantDto } from 'src/applicant/dto/create-applicant.dto';
 import { CreateApplicantOdooDto } from 'src/applicant/dto/create-applicant-odoo.dto';
 
 @Injectable()

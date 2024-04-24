@@ -10,10 +10,16 @@ import { diskStorage } from 'multer';
 import { HttpModule } from '@nestjs/axios';
 import { OdooModule } from 'src/odoo/odoo.module';
 import { JobVacanyModule } from 'src/job-vacany/job-vacany.module';
+import { ResumeScreeningQuestionsAnswers } from './entities/resume-screening-questions-answers.entity';
+import { ChatgptModule } from 'src/chatgpt/chatgpt.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Applicant, Resume]),
+    TypeOrmModule.forFeature([
+      Applicant,
+      Resume,
+      ResumeScreeningQuestionsAnswers,
+    ]),
     MulterModule.register({
       storage: diskStorage({
         destination: './uploads', // Specify destination folder
@@ -29,6 +35,7 @@ import { JobVacanyModule } from 'src/job-vacany/job-vacany.module';
     HttpModule,
     OdooModule,
     JobVacanyModule,
+    ChatgptModule,
   ],
   exports: [TypeOrmModule, ApplicantService],
   controllers: [ApplicantController, ResumeController],

@@ -38,16 +38,16 @@ import {
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import { red } from "@mui/material/colors";
+import useJobVacancies from "@/hooks/useJobVacancies";
 
 export default function Jobs() {
   const { data } = useSession();
-  const [jobs, setJobs] = useState<JobVacancy[]>([]);
+  const { jobs, selectedJob, setSelectedJob, setJobs } = useJobVacancies();
   const [applicants, setApplicants] = useState<Applicant[]>([]);
   const [screeningQuestions, setScreeningQuestions] = useState<
     ScreeningQuestion[]
   >([]);
   const [techSkill, setTechSkill] = useState<TechSkill[]>([]);
-  const [selectedJob, setSelectedJob] = useState<JobVacancy | null>(null);
   const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
   const [isDeleted, setIsDeleted] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -55,33 +55,7 @@ export default function Jobs() {
 
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const response = await fetch("http://localhost:3001/job-vacany", {
-        headers: {
-          Authorization: `Bearer ${data?.accessToken}`,
-        },
-      });
-      const fetchedData = await response.json();
-      setJobs(fetchedData);
-      setSelectedJob(fetchedData[0]);
-      const jobIdFromUrl = window.location.search.match(/jobId=(\d+)/)?.[1];
-      if (jobIdFromUrl) {
-        // Find the job in the fetchedData that matches the jobId from the URL
-        const jobToSelect = fetchedData.find(
-          (job: JobVacancy) => job.id === +jobIdFromUrl
-        );
-        if (jobToSelect) {
-          // Set the selected job based on the URL parameter
-          setSelectedJob(jobToSelect);
-        }
-      }
-    };
-
-    if (data) {
-      fetchData();
-    }
-  }, [data]);
+  const sortedApplicants = [...applicants].sort((a, b) => parseInt(b.rating) - parseInt(a.rating));
 
   useEffect(() => {
     if (selectedJob && data) {
@@ -205,7 +179,7 @@ export default function Jobs() {
   return (
     <Grid container spacing={2}>
       <Grid item xs={4}>
-        <Button variant="contained" onClick={handleCreateJob}>
+        <Button variant="contained" onClick={handleCreateJob} sx={{mb:"8px"}}>
           <AddIcon />
           New Job
         </Button>
@@ -290,13 +264,13 @@ export default function Jobs() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {applicants.map((row) => (
+                {sortedApplicants.map((row) => (
                   <TableRow
                     key={row.id}
                     sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                   >
                     <TableCell component="th" scope="row">
-                      {row.firstName} {row.lastName}
+                      {row.firstName} {row.lastName} 
                     </TableCell>
                     <TableCell align="right">{row.email}</TableCell>
                     <TableCell align="right">{row.phoneNumber}</TableCell>

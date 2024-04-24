@@ -13,6 +13,12 @@ import { join } from 'path';
 import { JobVacanyService } from 'src/job-vacany/job-vacany.service';
 import { RegisterApplicantDto } from './dto/register-applicant.dto';
 import * as bcrypt from 'bcrypt';
+import { ResumeScreeningQuestionsAnswers } from './entities/resume-screening-questions-answers.entity';
+import { ChatgptService } from 'src/chatgpt/chatgpt.service';
+
+const chatPrompt = `{question}. For this question this is the following answer provided: {answer}. 
+I want the answer provided as a JSON data following this structure: { isAcceptable: boolean; explanation: string; }. Evaluate the answer if it fits wth the question then accept it, and also this is a reference key answer to use as guideline: 
+{key_answer}`;
 
 @Injectable()
 export class ApplicantService implements OnModuleInit {
@@ -21,9 +27,12 @@ export class ApplicantService implements OnModuleInit {
     private applicantRepository: Repository<Applicant>,
     @InjectRepository(Resume)
     private resumeRepository: Repository<Resume>,
+    @InjectRepository(ResumeScreeningQuestionsAnswers)
+    private resumeScreeningQuestions: Repository<ResumeScreeningQuestionsAnswers>,
     private readonly httpService: HttpService,
     private readonly odooService: OdooService,
     private readonly jobVacancyService: JobVacanyService,
+    private readonly chatGptService: ChatgptService,
   ) {}
 
   //runs with startup of the application and creates admin details in database (seeding database)
@@ -49,9 +58,17 @@ export class ApplicantService implements OnModuleInit {
       phoneNumber,
       email,
       language,
-      experience,
+      yearsOfExperience,
       jobVacancyId,
+      screeningQuestions,
+      userName,
     } = createApplicantDto;
+
+    const screeningQuestionsParsed = JSON.parse(screeningQuestions) as {
+      question: string;
+      answer: string;
+      key_answer: string;
+    }[];
 
     const jobVacancy = await this.jobVacancyService.findOne(
       parseInt(jobVacancyId),
@@ -87,44 +104,87 @@ export class ApplicantService implements OnModuleInit {
       },
     );
 
-    const rating = Math.round((similarityData.percantage * 5) / 100).toString();
+    // evalute screeing questions with ChatGPT
+    const validation_result: {
+      isAcceptable: boolean;
+      explanation: string;
+    }[] = await Promise.all(
+      screeningQuestionsParsed.map(({ question, answer, key_answer }) => {
+        const prompt = chatPrompt
+          .replace('{question}', question)
+          .replace('{answer}', answer)
+          .replace('{key_answer}', key_answer);
+        return this.chatGptService.promptChat(prompt);
+      }),
+    );
 
-    const newResume = this.resumeRepository.create({
+    const resume_rating = Math.round((similarityData.percantage * 5) / 100);
+
+    const screening_rating = Math.round(
+      (validation_result.filter((q) => q.isAcceptable).length /
+        validation_result.length) *
+        5,
+    );
+
+    const total_rating = Math.round((resume_rating + screening_rating) / 2);
+
+    console.log({ validation_result, resume_rating, screening_rating });
+
+    let newResume = this.resumeRepository.create({
       filename: resumeFile.filename,
       education,
       language,
-      experience,
-      rating,
+      yearsOfExperience,
+      rating: total_rating.toString(),
+      resume_rating: resume_rating.toString(),
+      screening_questions_rating: screening_rating.toString(),
       extracted_keywords: '',
       resume_data: '',
+      phoneNumber,
+      email,
       jobVacancy,
     });
 
-    await this.resumeRepository.save(newResume);
+    newResume = await this.resumeRepository.save(newResume);
+
+    // Store the screening questions answers
+    await Promise.all(
+      screeningQuestionsParsed.map(async (skill) => {
+        const newSkill = this.resumeScreeningQuestions.create({
+          resume: newResume,
+          ...skill,
+        });
+        await this.resumeScreeningQuestions.save(newSkill);
+      }),
+    );
 
     // Store applicant in Odoo
     const odooResult = await this.odooService.createApplicant({
       firstName,
       lastName,
-      rating,
+      rating: total_rating.toString(),
       resumeData: resumeData?.resume_data,
       job_id: jobVacancy.odooJobId.toString(),
     });
 
-    const newApplicant = this.applicantRepository.create({
-      firstName,
-      lastName,
-      phoneNumber,
-      email,
-      resumes: [newResume],
-      odooApplicantId: odooResult as number,
-    });
+    let applicant: Applicant;
+    if (userName) {
+      applicant = await this.findOneByUsername(userName);
+      applicant.resumes.push(newResume);
+      applicant.odooApplicantId = odooResult as number;
+      await this.applicantRepository.save(applicant);
+    } else {
+      applicant = this.applicantRepository.create({
+        firstName,
+        lastName,
+        phoneNumber,
+        email,
+        resumes: [newResume],
+        odooApplicantId: odooResult as number,
+      });
+    }
 
-    console.log({ odooResult });
-
-    await this.applicantRepository.save(newApplicant);
-
-    return 'This action adds a new applicant';
+    return { newResume, total_rating, resume_rating, screening_rating };
   }
 
   async register(registerApplicantDto: RegisterApplicantDto) {
@@ -150,7 +210,10 @@ export class ApplicantService implements OnModuleInit {
     return await this.applicantRepository.find();
   }
   async findOneByUsername(userName: string) {
-    return await this.applicantRepository.findOne({ where: { userName } });
+    return await this.applicantRepository.findOne({
+      relations: ['resumes'],
+      where: { userName },
+    });
   }
   async findOne(id: number) {
     return `This action returns a #${id} applicant`;
@@ -168,5 +231,18 @@ export class ApplicantService implements OnModuleInit {
 
   async remove(id: number) {
     return await this.applicantRepository.delete({ id });
+  }
+
+  async getResumeForJobVacancy({
+    userName,
+    jobVacancyId,
+  }: {
+    userName: string;
+    jobVacancyId: number;
+  }) {
+    return await this.jobVacancyService.getApplicantByJobVacancyId(
+      jobVacancyId,
+      userName,
+    );
   }
 }

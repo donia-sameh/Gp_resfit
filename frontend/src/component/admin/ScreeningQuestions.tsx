@@ -104,7 +104,7 @@ export default function ScreeningQuestions() {
   return (
     <>
       <Box>
-        <Button variant="contained" onClick={handleCreate}>
+        <Button variant="contained" onClick={handleCreate} sx={{mb:"8px"}}>
           <AddIcon />
           New Question
         </Button>

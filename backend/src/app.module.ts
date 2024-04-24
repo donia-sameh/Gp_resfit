@@ -9,9 +9,12 @@ import { JobVacanyModule } from './job-vacany/job-vacany.module';
 import { OdooModule } from './odoo/odoo.module';
 import { TechSkillService } from './settings/tech-skill.service';
 import { AuthModule } from './auth/auth.module';
+import { ChatgptModule } from './chatgpt/chatgpt.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot(),
     ApplicantModule,
     TypeOrmModule.forRoot({
       type: 'mysql',
@@ -28,6 +31,7 @@ import { AuthModule } from './auth/auth.module';
     JobVacanyModule,
     OdooModule,
     AuthModule,
+    ChatgptModule,
   ],
   controllers: [AppController],
   providers: [AppService, TechSkillService],

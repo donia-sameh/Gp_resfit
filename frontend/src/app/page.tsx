@@ -10,12 +10,21 @@ import { UserRoles } from "@/constants/UserRoles";
 import { useRouter } from "next/navigation";
 
 export default function LandingPage() {
-  const { data } = useSession()
+  const { data, status } = useSession();
   const router = useRouter();
 
-  if(data?.role === UserRoles.ADMIN) {
-    router.push("/dashboard")
+  if (status === "loading") {
     return <></>;
+  }
+
+  if (data?.role === UserRoles.ADMIN) {
+    router.push("/dashboard");
+    return;
+  }
+
+  if(data?.role === UserRoles.APPLICANT) {
+    router.push("/jobs")
+    return;
   }
 
   return (

@@ -9,8 +9,8 @@ import {
   Get,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthAdminGuard } from './auth guard/auth-admin.guard';
 import { RegisterApplicantDto } from 'src/applicant/dto/register-applicant.dto';
+import { AuthAllGuard } from './auth guard/auth-all.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -27,7 +27,8 @@ export class AuthController {
   registerApplicant(@Body() registerDto: RegisterApplicantDto) {
     return this.authService.register(registerDto);
   }
-  @UseGuards(AuthAdminGuard)
+
+  @UseGuards(AuthAllGuard)
   @Get('profile')
   getProfile(@Request() req) {
     return req.user;

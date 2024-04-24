@@ -31,7 +31,9 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const payload = { sub: user.id, username };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _, odooApplicantId: __, ...rest } = user as Applicant;
+    const payload = { sub: user.id, ...rest };
 
     return { token: await this.jwtService.signAsync(payload), role, username };
   }
@@ -48,7 +50,9 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Registration failed!!');
     }
-    const payload = { sub: user.id, username: user.userName };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, odooApplicantId, ...rest } = user;
+    const payload = { sub: user.id, ...rest };
     return {
       access_token: await this.jwtService.signAsync(payload),
       role: 'applicant',

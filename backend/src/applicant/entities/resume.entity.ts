@@ -1,11 +1,24 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 import { Applicant } from './applicant.entity';
 import { JobVacany } from 'src/job-vacany/entities/job-vacany.entity';
+import { ResumeScreeningQuestionsAnswers } from './resume-screening-questions-answers.entity';
 
 @Entity()
 export class Resume {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column()
+  email: string;
+
+  @Column()
+  phoneNumber: string;
 
   @Column()
   education: string;
@@ -14,10 +27,17 @@ export class Resume {
   language: string;
 
   @Column()
-  experience: string;
+  yearsOfExperience: string;
 
+  // final rating
   @Column()
   rating: string;
+
+  @Column()
+  resume_rating: string;
+
+  @Column()
+  screening_questions_rating: string;
 
   @Column({ type: 'text', default: null })
   extracted_keywords: string;
@@ -33,4 +53,10 @@ export class Resume {
 
   @ManyToOne(() => JobVacany, (d) => d.resumes)
   jobVacancy: JobVacany;
+
+  @OneToMany(() => ResumeScreeningQuestionsAnswers, (q) => q.resume, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  resumeScreeningQuestionsAnswers: ResumeScreeningQuestionsAnswers[];
 }

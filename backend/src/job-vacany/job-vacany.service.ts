@@ -169,16 +169,31 @@ export class JobVacanyService {
     });
 
     if (jobVacancy?.resumes) {
-      return jobVacancy.resumes.map(
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        ({ applicant: { password, ...rest }, rating }) => ({
-          ...rest,
-          rating,
-        }),
-      );
+      return jobVacancy.resumes
+        .filter((resume) => resume.applicant)
+        .map(
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          ({ applicant: { password, ...rest }, rating }) => ({
+            ...rest,
+            rating,
+          }),
+        );
     }
 
     return [];
+  }
+
+  async getApplicantByJobVacancyId(id: number, userName: string) {
+    const jobVacancy = await this.jobVacancyRepository.findOne({
+      where: { id },
+      relations: ['resumes', 'resumes.applicant'], // This loads both resumes and their related applicants
+    });
+
+    if (jobVacancy?.resumes) {
+      return jobVacancy.resumes.find((a) => a.applicant?.userName === userName);
+    }
+
+    return {};
   }
 
   async getTechSkillByJobVacancyId(id: number) {

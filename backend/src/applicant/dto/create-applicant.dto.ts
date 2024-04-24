@@ -1,4 +1,5 @@
 export class CreateApplicantDto {
+  applicantId?: string;
   firstName: string;
   lastName: string;
   userName: string;
@@ -6,7 +7,8 @@ export class CreateApplicantDto {
   email: string;
   password: string;
   language: string;
-  experience: string;
+  yearsOfExperience: string;
   education: string;
   jobVacancyId: string;
+  screeningQuestions: string; // this will be a Json stringified
 }

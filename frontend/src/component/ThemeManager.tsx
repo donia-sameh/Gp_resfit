@@ -31,7 +31,7 @@ export const ThemeManager: FC<PropsWithChildren> = ({ children }) => {
   const pathname = usePathname();
 
   const showAppBar = useMemo(
-    () => !["/auth/signin", ""].includes(pathname),
+    () => !["/auth/signin", "","/auth/signup"].includes(pathname),
     [pathname]
   );
 
@@ -51,7 +51,7 @@ export const ThemeManager: FC<PropsWithChildren> = ({ children }) => {
       >
         {children}
       </Box>
-      <Footer />
+      {showAppBar &&<Footer />}
     </ThemeProvider>
   );
 };

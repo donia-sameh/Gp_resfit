@@ -17,6 +17,38 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Snackbar from "@mui/material/Snackbar";
+import MuiAlert from "@mui/material/Alert";
+
+const validateEmail = (email:any) => {
+  return String(email)
+    .toLowerCase()
+    .match(
+      /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@(([^<>()[\]\.,;:\s@"]+\.)+[^<>()[\]\.,;:\s@"]{2,})$/
+    );
+};
+
+const validatePhoneNumber = (phoneNumber:any) => {
+  // This is a simple regex for phone numbers, adjust it according to your needs
+  return String(phoneNumber).match(/^\d{11}$/);
+};
+
+const validatePassword = (password:any) => {
+  const criteria = [
+    { regex: /.{8,}/, message: "Password must be at least 8 characters long." },
+    { regex: /[A-Z]/, message: "Password must contain at least one uppercase letter." },
+    { regex: /[a-z]/, message: "Password must contain at least one lowercase letter." },
+    { regex: /[0-9]/, message: "Password must contain at least one number." },
+    { regex: /[!@#$%^&*]/, message: "Password must contain at least one special character (e.g., !@#$%^&*)." }
+  ];
+
+  for (let i = 0; i < criteria.length; i++) {
+    if (!criteria[i].regex.test(password)) {
+      return { isValid: false, message: criteria[i].message };
+    }
+  }
+
+  return { isValid: true, message: "Password meets all requirements." };
+};
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -28,13 +60,39 @@ export default function RegisterPage() {
     password: "",
   });
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const handleCloseSnackbar = () => {
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+
+  const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+     // Validation checks
+    if (!formData.firstName || !formData.lastName || !formData.phoneNumber || !formData.email || !formData.password) {
+      setSnackbarMessage('Please fill in all fields.');
+      setSnackbarOpen(true);
+      return;
+    }
+
+    if (!validateEmail(formData.email)) {
+      setSnackbarMessage('Invalid email address.');
+      setSnackbarOpen(true);
+      return;
+    }
+
+    if (!validatePhoneNumber(formData.phoneNumber)) {
+      setSnackbarMessage('Invalid phone number. Format must be 11 digits.');
+      setSnackbarOpen(true);
+      return;
+    }
+    const passwordValidation = validatePassword(formData.password);
+    if (!passwordValidation.isValid) {
+      setSnackbarMessage(passwordValidation.message);
+      setSnackbarOpen(true);
+      return;
+    }
     // Example: Sending registration request to your NestJS backend
     const response = await fetch("http://localhost:3001/auth/register", {
       method: "POST",
@@ -56,8 +114,7 @@ export default function RegisterPage() {
 
     if (response.ok) {
       // Handle success. You might want to automatically sign the user in now.
-      setSnackbarMessage("Registration successful! Signing you in...");
-      setSnackbarOpen(true);
+
       console.log("Registration successful", data);
 
       // Optional: Sign in the user automatically after registration
@@ -69,15 +126,12 @@ export default function RegisterPage() {
 
       if (signInStatus && signInStatus.ok) {
         router.push("/"); // or any other success route
-      } else {
-        // Handle sign-in error (e.g., show message to the user)
-        setSnackbarMessage("Sign-in failed. Please sign in manually.");
-        console.log("Sign-in after registration failed");
       }
     } else {
       // Handle registration failure
-      setSnackbarMessage("Registration failed: " + data.error);
       console.log("Registration failed", data);
+      setSnackbarMessage(data.message || 'Registration failed.'); // Adjust based on your API response
+      setSnackbarOpen(true);
     }
   };
 
@@ -195,10 +249,25 @@ export default function RegisterPage() {
         </Box>
         <Snackbar
           open={snackbarOpen}
-          autoHideDuration={6000}
-          onClose={handleCloseSnackbar}
-          message={snackbarMessage}
-        />
+          autoHideDuration={2000} // Adjust the duration as needed
+          onClose={handleSnackbarClose}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} // This positions the Snackbar itself
+  ContentProps={{
+    sx: {
+      justifyContent: 'center', // This centers the content inside the Snackbar
+    }
+  }}
+        >
+        <MuiAlert
+              elevation={6}
+              variant="filled"
+              onClose={handleSnackbarClose}
+              severity="error"
+              sx={{ width: '100%', textAlign: 'center' }} 
+            >
+               {snackbarMessage}
+            </MuiAlert>
+        </Snackbar>
       </Container>
     </ThemeProvider>
   );

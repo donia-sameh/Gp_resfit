@@ -8,7 +8,14 @@ export class JobVacanyScreeningQuestions {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => ScreeningQuestion, (d) => d.job_vacancy_screening_questions)
+  @ManyToOne(
+    () => ScreeningQuestion,
+    (d) => d.job_vacancy_screening_questions,
+    {
+      cascade: true,
+      onDelete: 'CASCADE',
+    },
+  )
   screening_question: ScreeningQuestion;
 
   @ManyToOne(() => JobVacany, (d) => d.job_vacancy_screening_questions)

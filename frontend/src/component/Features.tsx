@@ -254,7 +254,7 @@ export default function Features() {
               sx={{
                 m: 'auto',
                 width: 420,
-                height: 500,
+                height: 420,
                 backgroundSize: 'contain',
                 backgroundImage: (theme) =>
                   theme.palette.mode === 'light'

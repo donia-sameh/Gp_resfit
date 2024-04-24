@@ -4,10 +4,8 @@ import { useRouter } from "next/navigation";
 import * as React from "react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
+
 import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
@@ -15,9 +13,17 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Link from "next/link";
+import Snackbar from "@mui/material/Snackbar";
+import MuiAlert from "@mui/material/Alert";
 
 export default function SignInPage() {
   const router = useRouter();
+
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
 
   async function handleSubmit(event: any) {
     event.preventDefault();
@@ -34,6 +40,7 @@ export default function SignInPage() {
     } else {
       // Handle error cases
       console.error("Authentication failed");
+      setSnackbarOpen(true);
     }
   }
 
@@ -41,7 +48,6 @@ export default function SignInPage() {
   return (
     <ThemeProvider theme={defaultTheme}>
       <Container component="main" maxWidth="xs">
-        <CssBaseline />
         <Box
           sx={{
             marginTop: 8,
@@ -82,10 +88,6 @@ export default function SignInPage() {
               id="password"
               autoComplete="current-password"
             />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            />
             <Button
               type="submit"
               fullWidth
@@ -104,7 +106,29 @@ export default function SignInPage() {
             </Grid>
           </Box>
         </Box>
+   
       </Container>
+      <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={2000} // Adjust the duration as needed
+          onClose={handleSnackbarClose}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} // This positions the Snackbar itself
+          ContentProps={{
+            sx: {
+              justifyContent: 'center', // This centers the content inside the Snackbar
+            }
+          }}
+        >
+        <MuiAlert
+              elevation={6}
+              variant="filled"
+              onClose={handleSnackbarClose}
+              severity="error"
+              sx={{ width: '100%', textAlign: 'center' }} 
+            >
+               Failed to sign in: Authentication failed
+            </MuiAlert>
+        </Snackbar>
     </ThemeProvider>
   );
 }

@@ -31,7 +31,7 @@ interface FormData {
   email:string;
   phoneNumber:string;
   education: string;
-  experience: string;
+  yearsOfExperience: string;
   language: string;
   resumeFile: File | null;
 }
@@ -52,7 +52,7 @@ export default function Apply() {
     email:"",
     education: "",
     jobVacancyId: "",
-    experience: "",
+    yearsOfExperience: "",
     language: "",
     resumeFile: null,
   };
@@ -96,7 +96,8 @@ export default function Apply() {
       ...prevData,
       resumeFile: e?.target?.files?.[0] ?? null,
     }));
-  };
+  }
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log(formData);
@@ -105,7 +106,7 @@ export default function Apply() {
     formDataToSend.append("lastName", formData.lastName);
     formDataToSend.append("phoneNumber", formData.phoneNumber);
     formDataToSend.append("email", formData.email);
-    formDataToSend.append("experience", formData.experience);
+    formDataToSend.append("yearsOfExperience", formData.yearsOfExperience);
     formDataToSend.append("education", formData.education);
     formDataToSend.append("language", formData.language);
     formDataToSend.append("jobVacancyId", formData.jobVacancyId);
@@ -136,6 +137,7 @@ export default function Apply() {
       // Handle network errors or other issues
     }
   };
+
   const toggleColorMode = () => {
     setMode((prev) => (prev === "dark" ? "light" : "dark"));
   };
@@ -155,8 +157,8 @@ export default function Apply() {
                 <Grid item xs={12}>
                   <TextField
                     label="Experience"
-                    name="experience"
-                    value={formData.experience}
+                    name="yearsOfExperience"
+                    value={formData.yearsOfExperience}
                     onChange={handleChange}
                     fullWidth
                     required

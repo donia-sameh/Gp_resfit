@@ -93,7 +93,7 @@ export default function TechSkills() {
   return (
     <>
       <Box>
-        <Button variant="contained" onClick={handleCreate}>
+        <Button variant="contained" onClick={handleCreate} sx={{mb:"8px"}}>
           <AddIcon />
           New Tech Skill
         </Button>

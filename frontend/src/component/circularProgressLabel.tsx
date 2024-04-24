@@ -34,19 +34,8 @@ function CircularProgressWithLabel(
   );
 }
 
-export default function CircularWithValueLabel() {
-  const [progress, setProgress] = React.useState(10);
+export default function CircularWithValueLabel({rank}:{rank: number}) {
 
-  React.useEffect(() => {
-    const timer = setInterval(() => {
-      setProgress((prevProgress) =>
-        prevProgress >= 100 ? 0 : prevProgress + 10
-      );
-    }, 800);
-    return () => {
-      clearInterval(timer);
-    };
-  }, []);
 
-  return <CircularProgressWithLabel value={80} />;
+  return <CircularProgressWithLabel value={(100/5)* rank} />;
 }

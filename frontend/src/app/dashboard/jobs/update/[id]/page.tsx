@@ -25,12 +25,8 @@ import { useRouter } from "next/navigation";
 import { EducationDropdownItems } from "@/constants/EducationDropdownItems";
 import { ScreeningQuestion } from "@/constants/ScreeningQuestions";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-
-interface JobSkill {
-  id?: number;
-  title: string;
-  weight: string;
-}
+import useJobVacancy from "@/hooks/useJobVacancy";
+import { TechSkill } from "@/constants/TechSkills";
 
 interface FormData {
   title: string;
@@ -38,7 +34,7 @@ interface FormData {
   language: string;
   yearsOfExperience: string;
   description: string;
-  skills: JobSkill[];
+  skills: TechSkill[];
   screeningQuestions: number[];
 }
 
@@ -78,46 +74,24 @@ export default function JobOpening({
     [techSkills, formData.skills]
   );
 
+  const { job } = useJobVacancy({ jobId });
+
   useEffect(() => {
-    const fetchJobData = async () => {
-      try {
-        if (jobId) {
-          const response = await fetch(
-            `http://localhost:3001/job-vacany/${jobId}`,
-            {
-              headers: {
-                Authorization: `Bearer ${data?.accessToken}`,
-              },
-            }
-          );
-
-          if (response.ok) {
-            const jobData = await response.json();
-            // Update form data with the fetched job data
-            setFormData({
-              title: jobData.title,
-              education: jobData.education,
-              language: jobData.language,
-              yearsOfExperience: jobData.yearsOfExperience,
-              description: jobData.jobDescription,
-              skills: jobData.skills,
-              screeningQuestions: jobData.screeningQuestions.map(
-                (x: any) => x.screening_question.id
-              ),
-            });
-          } else {
-            console.error("Error fetching job data:", response.statusText);
-            // Handle error state or display an error message to the user
-          }
-        }
-      } catch (error) {
-        console.error("Error during data fetching:", error);
-        // Handle network errors or other issues
-      }
-    };
-
-    fetchJobData(); // Fetch job data when the component mounts
-  }, [data]);
+    if (job) {
+      setFormData({
+        title: job.title,
+        education: job.education,
+        language: job.language,
+        yearsOfExperience: job.yearsOfExperience,
+        description: job.jobDescription,
+        skills: job.skills,
+        screeningQuestions: job.screeningQuestions.map(
+          (x: ScreeningQuestion) => x.id
+          //(x: any) => x.screening_question.id
+        ),
+      });
+    }
+  }, [job]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -203,7 +177,7 @@ export default function JobOpening({
   const handleAddNewSkill = () => {
     setFormData((prev) => ({
       ...prev,
-      skills: [...prev.skills, { title: "", weight: "" }],
+      skills: [...prev.skills, { title: "" }],
     }));
   };
 
@@ -370,7 +344,7 @@ export default function JobOpening({
                       <Select
                         labelId="demo-simple-select-label"
                         id="demo-simple-select"
-                        value={js.weight} // Store the selected value in a state variable
+                        value={js.weight?.toString()} // Store the selected value in a state variable
                         onChange={(e) =>
                           handleUpdateJobWeightSelection(e, index)
                         }
