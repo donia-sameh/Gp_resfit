@@ -216,7 +216,10 @@ export class ApplicantService implements OnModuleInit {
     });
   }
   async findOne(id: number) {
-    return `This action returns a #${id} applicant`;
+    return await this.applicantRepository.findOne({
+      relations: ['resumes', 'resumes.jobVacancy'],
+      where: { id },
+    });
   }
 
   async update(id: number, updateApplicantDto: UpdateApplicantDto) {
@@ -244,5 +247,11 @@ export class ApplicantService implements OnModuleInit {
       jobVacancyId,
       userName,
     );
+  }
+  async getUserProfile(userId: number) {
+    return this.applicantRepository.findOne({
+      where: { id: userId },
+      relations: ['resumes', 'resumes.jobVacancy'],
+    });
   }
 }

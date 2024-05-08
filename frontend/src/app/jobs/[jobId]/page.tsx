@@ -1,8 +1,10 @@
 "use client";
 
+
 import useJobVacancy from "@/hooks/useJobVacancy";
 import { Button, Chip, Container, Typography } from "@mui/material";
 import Link from "next/link";
+
 
 export default function Jobs({
   params: { jobId },
@@ -19,6 +21,7 @@ export default function Jobs({
 
   return (
     <Container>
+      
       <Typography variant="h3">{title}</Typography>
       <Typography variant="h6" sx={{ mt: 2 }}>
         Description

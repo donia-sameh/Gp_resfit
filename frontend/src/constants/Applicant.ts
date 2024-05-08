@@ -6,4 +6,5 @@ export interface Applicant {
   email: string;
   phoneNumber: string;
   rating: string;
+  resumes:any[]
 }

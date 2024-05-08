@@ -10,14 +10,19 @@ import {
   UploadedFile,
   UseGuards,
   Request,
+  Res,
+  StreamableFile,
 } from '@nestjs/common';
 import { ApplicantService } from './applicant.service';
 import { CreateApplicantDto } from './dto/create-applicant.dto';
 import { UpdateApplicantDto } from './dto/update-applicant.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthApplicantGuard } from 'src/auth/auth guard/auth-applicant.guard';
+import { AuthAllGuard } from 'src/auth/auth guard/auth-all.guard';
+import { join } from 'path';
+import { createReadStream } from 'fs';
 
-@UseGuards(AuthApplicantGuard)
+//@UseGuards(AuthAllGuard)
 @Controller('applicant')
 export class ApplicantController {
   constructor(private readonly applicantService: ApplicantService) {}
@@ -43,6 +48,11 @@ export class ApplicantController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.applicantService.findOne(+id);
+  }
+  @Get('/uploads/:filename')
+  getResume(@Param('filename') filename: string) {
+    const file = createReadStream(join(process.cwd(), 'uploads', filename));
+    return new StreamableFile(file);
   }
 
   @Patch(':id')

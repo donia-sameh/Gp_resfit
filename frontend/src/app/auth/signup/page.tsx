@@ -19,18 +19,24 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 
+// const validateEmail = (email:any) => {
+//   return String(email)
+//     .toLowerCase()
+//     .match(
+//       /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@(([^<>()[\]\.,;:\s@"]+\.)+[^<>()[\]\.,;:\s@"]{2,})$/
+//     );
+// };
+
 const validateEmail = (email:any) => {
-  return String(email)
-    .toLowerCase()
-    .match(
-      /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@(([^<>()[\]\.,;:\s@"]+\.)+[^<>()[\]\.,;:\s@"]{2,})$/
-    );
+  // Regular expression to validate email format and domain
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && /@(gmail|yahoo|hotmail|miuegypt)\.|@(.*\.org)$/.test(email);
 };
 
 const validatePhoneNumber = (phoneNumber:any) => {
   // This is a simple regex for phone numbers, adjust it according to your needs
   return String(phoneNumber).match(/^\d{11}$/);
 };
+
 
 const validatePassword = (password:any) => {
   const criteria = [
@@ -50,6 +56,7 @@ const validatePassword = (password:any) => {
   return { isValid: true, message: "Password meets all requirements." };
 };
 
+
 export default function RegisterPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -68,6 +75,24 @@ export default function RegisterPage() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+
+    const validateName = (name:any) => {
+      return /^[A-Za-z]+$/i.test(name); // This regex matches only alphabetic characters
+    };
+    
+    // Validation checks for first name and last name
+    if (!validateName(formData.firstName)) {
+      setSnackbarMessage('Invalid first name. Please use alphabetic characters only.');
+      setSnackbarOpen(true);
+      return;
+    }
+    
+    if (!validateName(formData.lastName)) {
+      setSnackbarMessage('Invalid last name. Please use alphabetic characters only.');
+      setSnackbarOpen(true);
+      return;
+    }
 
      // Validation checks
     if (!formData.firstName || !formData.lastName || !formData.phoneNumber || !formData.email || !formData.password) {
@@ -272,3 +297,11 @@ export default function RegisterPage() {
     </ThemeProvider>
   );
 }
+function setSnackbarMessage(arg0: string) {
+  throw new Error("Function not implemented.");
+}
+
+function setSnackbarOpen(arg0: boolean) {
+  throw new Error("Function not implemented.");
+}
+

@@ -118,7 +118,7 @@ function AppBar({ mode, toggleColorMode }: AppAppBarProps) {
             >
               {isLoggedIn ? (
                 <>
-                  <Typography>{data.user?.name}</Typography>
+                  {/* <Typography>{data.user?.name}</Typography> */}
                   <Button onClick={() => signOut()}>Logout</Button>
                 </>
               ) : (

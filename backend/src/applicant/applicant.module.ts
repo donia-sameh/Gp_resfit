@@ -12,6 +12,7 @@ import { OdooModule } from 'src/odoo/odoo.module';
 import { JobVacanyModule } from 'src/job-vacany/job-vacany.module';
 import { ResumeScreeningQuestionsAnswers } from './entities/resume-screening-questions-answers.entity';
 import { ChatgptModule } from 'src/chatgpt/chatgpt.module';
+import { AdminModule } from 'src/admin/admin.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { ChatgptModule } from 'src/chatgpt/chatgpt.module';
     OdooModule,
     JobVacanyModule,
     ChatgptModule,
+    AdminModule,
   ],
   exports: [TypeOrmModule, ApplicantService],
   controllers: [ApplicantController, ResumeController],
