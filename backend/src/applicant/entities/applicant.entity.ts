@@ -24,9 +24,6 @@ export class Applicant {
   @Column({ default: null })
   password: string;
 
-  @Column({ default: null })
-  odooApplicantId?: number;
-
   @OneToMany(() => Resume, (resume) => resume.applicant)
   resumes: Resume[];
 }

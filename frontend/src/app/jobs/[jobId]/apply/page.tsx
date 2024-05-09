@@ -63,15 +63,13 @@ export default function Jobs({
   const { job, loading } = useJobVacancy({ jobId });
   const router = useRouter();
 
-  const validateEmail = (email: any) => {
-    return String(email)
-      .toLowerCase()
-      .match(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/);
+  const validateEmail = (email:any) => {
+    // Regular expression to validate email format and domain
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && /@(gmail|yahoo|hotmail|miuegypt)\.|@(.*\.org)$/.test(email);
   };
-
-  const validatePhoneNumber = (phoneNumber: any) => {
-    // Adjust the regex to match the phone number format you expect
-    return String(phoneNumber).match(/^\d{10,}$/); // Example for at least 10 digits
+  const validatePhoneNumber = (phoneNumber:any) => {
+    // This is a simple regex for phone numbers, adjust it according to your needs
+    return String(phoneNumber).match(/^\d{11}$/);
   };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -86,6 +84,7 @@ export default function Jobs({
       ...prevData,
       resumeFile: files?.[0] ?? null,
     }));
+    
   };
 
   const handleScreeningQuestionsAnswersChange = (

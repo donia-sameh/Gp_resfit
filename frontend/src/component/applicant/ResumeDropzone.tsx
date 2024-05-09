@@ -17,6 +17,15 @@ const ResumeDropzone: React.FC<ResumeDropzoneProps> = ({
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       // Handle the files
+       // Check if the file is a PDF
+       const pdfFiles = acceptedFiles.filter((file) => file.type === "application/pdf");
+
+       // If no PDF files are found, show an error message
+       if (pdfFiles.length === 0) {
+         alert("Please upload a PDF file.");
+         return;
+       }
+ 
       onDropAccepted(acceptedFiles);
     },
     [onDropAccepted]

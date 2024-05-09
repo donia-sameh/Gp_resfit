@@ -32,7 +32,7 @@ export class AuthService {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password: _, odooApplicantId: __, ...rest } = user as Applicant;
+    const { password: _, ...rest } = user as Applicant;
     const payload = { sub: user.id, ...rest };
 
     return { token: await this.jwtService.signAsync(payload), role, username };
@@ -51,7 +51,7 @@ export class AuthService {
       throw new UnauthorizedException('Registration failed!!');
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, odooApplicantId, ...rest } = user;
+    const { password, ...rest } = user;
     const payload = { sub: user.id, ...rest };
     return {
       access_token: await this.jwtService.signAsync(payload),

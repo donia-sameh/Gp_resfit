@@ -48,6 +48,9 @@ export class Resume {
   @Column()
   filename: string;
 
+  @Column({ default: null })
+  odooApplicantId?: number;
+
   @ManyToOne(() => Applicant, (d) => d.resumes)
   applicant: Applicant;
 

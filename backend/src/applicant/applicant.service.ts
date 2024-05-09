@@ -128,7 +128,14 @@ export class ApplicantService implements OnModuleInit {
 
     const total_rating = Math.round((resume_rating + screening_rating) / 2);
 
-    console.log({ validation_result, resume_rating, screening_rating });
+    // Store applicant in Odoo
+    const odooResult = await this.odooService.createApplicant({
+      firstName,
+      lastName,
+      rating: total_rating.toString(),
+      resumeData: resumeData?.resume_data,
+      job_id: jobVacancy.odooJobId.toString(),
+    });
 
     let newResume = this.resumeRepository.create({
       filename: resumeFile.filename,
@@ -143,6 +150,7 @@ export class ApplicantService implements OnModuleInit {
       phoneNumber,
       email,
       jobVacancy,
+      odooApplicantId: odooResult as number,
     });
 
     newResume = await this.resumeRepository.save(newResume);
@@ -158,21 +166,10 @@ export class ApplicantService implements OnModuleInit {
       }),
     );
 
-    // Store applicant in Odoo
-    const odooResult = await this.odooService.createApplicant({
-      firstName,
-      lastName,
-      rating: total_rating.toString(),
-      resumeData: resumeData?.resume_data,
-      job_id: jobVacancy.odooJobId.toString(),
-    });
-
     let applicant: Applicant;
-    if (userName) {
-      applicant = await this.findOneByUsername(userName);
+    if (email) {
+      applicant = await this.findOneByUsername(email);
       applicant.resumes.push(newResume);
-      applicant.odooApplicantId = odooResult as number;
-      await this.applicantRepository.save(applicant);
     } else {
       applicant = this.applicantRepository.create({
         firstName,
@@ -180,9 +177,9 @@ export class ApplicantService implements OnModuleInit {
         phoneNumber,
         email,
         resumes: [newResume],
-        odooApplicantId: odooResult as number,
       });
     }
+    await this.applicantRepository.save(applicant);
 
     return { newResume, total_rating, resume_rating, screening_rating };
   }
