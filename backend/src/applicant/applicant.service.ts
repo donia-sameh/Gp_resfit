@@ -20,6 +20,12 @@ const chatPrompt = `{question}. For this question this is the following answer p
 I want the answer provided as a JSON data following this structure: { isAcceptable: boolean; explanation: string; }. Evaluate the answer if it fits wth the question then accept it, and also this is a reference key answer to use as guideline: 
 {key_answer}`;
 
+const feedbackPrompt = `Provided below is the job description for a job screening system. 
+And also provided is a parsed resume data. Please compare both, and give me conclusion of the matching for this candidate. 
+Write the result as json with only the conclusion that will be shown to the candidate, so I need to show him what is good, and what needs to be improved better. Make the json follow this structure: { conclusion: string; needsToImprove: string }
+This is the job description: {job_description}
+This is the parsed resume: {parsed_resume}`;
+
 @Injectable()
 export class ApplicantService implements OnModuleInit {
   constructor(
@@ -125,6 +131,14 @@ export class ApplicantService implements OnModuleInit {
         validation_result.length) *
         5,
     );
+    const formattedFeedbackPrompt = feedbackPrompt
+      .replace('{job_description}', jobVacancy.jobDescription)
+      .replace('{parsed_resume}', resumeData?.resume_data);
+
+    const feedback_result: { conclusion: string; needsToImprove: string } =
+      await this.chatGptService.promptChat(formattedFeedbackPrompt);
+
+    resumeData.resume_data = this.escapeString(resumeData?.resumeData ?? '');
 
     const total_rating = Math.round((resume_rating + screening_rating) / 2);
 
@@ -146,7 +160,9 @@ export class ApplicantService implements OnModuleInit {
       resume_rating: resume_rating.toString(),
       screening_questions_rating: screening_rating.toString(),
       extracted_keywords: '',
-      resume_data: '',
+      resume_data: resumeData?.resume_data,
+      resume_feedback_conclusion: feedback_result?.conclusion,
+      resume_feedback_needsToImprove: feedback_result?.needsToImprove,
       phoneNumber,
       email,
       jobVacancy,
@@ -157,9 +173,10 @@ export class ApplicantService implements OnModuleInit {
 
     // Store the screening questions answers
     await Promise.all(
-      screeningQuestionsParsed.map(async (skill) => {
+      screeningQuestionsParsed.map(async (skill, index) => {
         const newSkill = this.resumeScreeningQuestions.create({
           resume: newResume,
+          answer_feedback: validation_result?.[index]?.explanation ?? '',
           ...skill,
         });
         await this.resumeScreeningQuestions.save(newSkill);
@@ -181,7 +198,7 @@ export class ApplicantService implements OnModuleInit {
     }
     await this.applicantRepository.save(applicant);
 
-    return { newResume, total_rating, resume_rating, screening_rating };
+    return { resumeId: newResume.id };
   }
 
   async register(registerApplicantDto: RegisterApplicantDto) {
@@ -250,5 +267,17 @@ export class ApplicantService implements OnModuleInit {
       where: { id: userId },
       relations: ['resumes', 'resumes.jobVacancy'],
     });
+  }
+
+  escapeString(str: string) {
+    if (typeof str !== 'string') {
+      throw new Error('Input must be a string');
+    }
+
+    // Regular expression to match all characters that need to be escaped
+    const re = /[\0\x08\x09\x1a\n\r"'\\\%]|[^\x00-\x7F]/g;
+
+    // This uses the global flag to replace all occurrences
+    return str.replace(re, '');
   }
 }

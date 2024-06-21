@@ -13,6 +13,7 @@ import { JobVacanyModule } from 'src/job-vacany/job-vacany.module';
 import { ResumeScreeningQuestionsAnswers } from './entities/resume-screening-questions-answers.entity';
 import { ChatgptModule } from 'src/chatgpt/chatgpt.module';
 import { AdminModule } from 'src/admin/admin.module';
+import { ResumeService } from './resume.service';
 
 @Module({
   imports: [
@@ -41,6 +42,6 @@ import { AdminModule } from 'src/admin/admin.module';
   ],
   exports: [TypeOrmModule, ApplicantService],
   controllers: [ApplicantController, ResumeController],
-  providers: [ApplicantService],
+  providers: [ApplicantService, ResumeService],
 })
 export class ApplicantModule {}

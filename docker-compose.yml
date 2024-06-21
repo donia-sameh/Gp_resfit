@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8069:8069"  # Odoo
+      - "3001:3000"  # Backend (Nest.js)
+      - "3002:3000"  # Frontend (Next.js)
+      - "8000:8000"  # Ranking Engine (FastAPI)
+    environment:
+      - ODOO_HOST=locahost
+      - ODOO_USER=donia2004436@miuegypt.edu.eg
+      - ODOO_PASSWORD=admin
+      - MYSQL_ALLOW_EMPTY_PASSWORD='yes'
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=odoo
+      - POSTGRES_PASSWORD=odoo
+    networks:
+      - app-network
+
+networks:
+  app-network:

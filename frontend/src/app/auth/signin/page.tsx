@@ -101,7 +101,7 @@ export default function SignInPage() {
                 <Link href="/">Back to home</Link>
               </Grid>
               <Grid item>
-                <Link href="/auth/signup">Don't have an account? Sign Up</Link>
+                <Link href="/auth/signup">Do not have an account? Sign Up</Link>
               </Grid>
             </Grid>
           </Box>

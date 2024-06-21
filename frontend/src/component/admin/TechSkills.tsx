@@ -120,7 +120,7 @@ export default function TechSkills() {
               </Box>
               <Button
                 sx={{ color: red[500]}} 
-                onClick={() => handleDelete(q.id)}
+                onClick={() => handleDelete(q?.id ?? 0)}
               >
                 <DeleteIcon />
               </Button>

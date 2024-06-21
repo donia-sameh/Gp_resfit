@@ -156,9 +156,9 @@ export default function Jobs({
       });
 
       if (response.ok) {
-        const { total_rating, resume_rating, screening_rating } = await response.json();
+        const { resumeId} = await response.json();
         // Handle successful submission
-        router.push(`/jobs/job=${jobId}/ranking?rank=${total_rating}&resume_rank=${resume_rating}&screeing_rating=${screening_rating}`);
+        router.push(`/jobs/job=${jobId}/ranking?resumeId=${resumeId}`);
         //setFormData(initialFormData);
 
         // You might want to clear form data or display a success message

@@ -66,7 +66,7 @@ export default function JobOpening({
     };
 
     fetchQuestionData(); // Fetch job data when the component mounts
-  }, [data]);
+  }, [data, questionId]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setFormData((prevData) => ({

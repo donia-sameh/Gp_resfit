@@ -12,6 +12,9 @@ export class ResumeScreeningQuestionsAnswers {
   @Column({ type: 'text' })
   answer: string;
 
+  @Column({ type: 'text' })
+  answer_feedback: string;
+
   @ManyToOne(() => Resume, (d) => d.resumeScreeningQuestionsAnswers)
   resume: Resume;
 }

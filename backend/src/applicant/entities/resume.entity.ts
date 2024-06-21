@@ -48,6 +48,12 @@ export class Resume {
   @Column()
   filename: string;
 
+  @Column({ type: 'text', default: null })
+  resume_feedback_conclusion: string;
+
+  @Column({ type: 'text', default: null })
+  resume_feedback_needsToImprove: string;
+
   @Column({ default: null })
   odooApplicantId?: number;
 
